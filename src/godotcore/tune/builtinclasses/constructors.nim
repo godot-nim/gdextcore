@@ -1,0 +1,69 @@
+import std/sequtils
+import std/macros
+
+import godotcore/internal/commandindex
+import godotcore/internal/builtinindex
+import godotcore/internal/extracommands
+import godotcore/internal/Variant
+
+from godotcore/internal/geometrics/typedef {.all.} import makevec
+
+
+macro vector*(exp: varargs[typed]): untyped =
+  let res = makeVec(exp[0..^1])
+  result = newStmtList()
+  result.add res.lets
+  result.add nnkBracket.newTree res.brackets.mapIt quote do: real_elem(`it`)
+macro vectori*(exp: varargs[typed]): untyped =
+  let res = makeVec(exp[0..^1])
+  result = newStmtList()
+  result.add res.lets
+  result.add nnkBracket.newTree res.brackets.mapIt quote do: int_elem(`it`)
+
+export gdstring
+export stringName
+
+proc `&`*(str: string): StringName {.inline.} = stringName str
+
+proc color*(): Color = Color(r: 0, g: 0, b: 0, a: 1)
+proc color*(src: Color): Color = src
+proc color*(src: Color; alpha: float32): Color = Color(r: src.r, g: src.g, b: src.b, a: alpha)
+proc color*(r,g,b: float32): Color = Color(r: r, g: g, b: b, a: 1)
+proc color*(r,g,b,a: float32): Color = Color(r: r, g: g, b: b, a: a)
+
+proc quaternion*(x, y, z, w: real_elem): Quaternion =
+  Quaternion(x: x, y: y, z: z, w: w)
+
+proc basis*(xx, xy, xz, yx, yy, yz, zx, zy, zz: real_elem): Basis =
+  Basis(
+    x: [xx, xy, xz],
+    y: [yx, yy, yz],
+    z: [zx, zy, zz])
+
+proc plane*(nx, ny, nz, d: real_elem): Plane =
+  Plane(normal: [nx, ny, nz], d: d)
+
+proc projection*(xx,xy,xz,xw, yx,yy,yz,yw, zx,zy,zz,zw, wx,wy,wz,ww: real_elem): Projection =
+  Projection(
+    x: [xx, xy, xz, xw],
+    y: [yx, yy, yz, yw],
+    z: [zx, zy, zz, zw],
+    w: [wx, wy, wz, ww],
+  )
+
+proc transform2D*(xx, xy, yx, yy, ox, oy: real_elem): Transform2D =
+  Transform2D(
+    x: [xx, xy],
+    y: [yx, yy],
+    origin: [ox, oy])
+
+proc transform3D*(xx, xy, xz, yx, yy, yz, zx, zy, zz, ox, oy, oz: real_elem): Transform3D =
+  Transform3D(
+    basis: Basis(
+      x: [xx, xy, xz],
+      y: [yx, yy, yz],
+      z: [zx, zy, zz]),
+    origin: [ox, oy, oz]
+  )
+
+proc variant*: Variant = interface_variantNewNil(addr result)

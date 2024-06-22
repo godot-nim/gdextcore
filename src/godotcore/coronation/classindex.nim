@@ -1,0 +1,1 @@
+import godotcore/internal/GodotClass; export GodotClass

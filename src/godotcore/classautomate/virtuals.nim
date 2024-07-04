@@ -2,17 +2,11 @@ import godotcore/internal/dirty/gdextension_interface
 import godotcore/internal/builtinindex
 import godotcore/internal/eventindex
 import godotcore/internal/GodotClassMeta
-import godotcore/classtraits
+
+import contracts
 
 import std/tables
 import std/macros
-
-proc contract_method*(T: typedesc): Event =
-  var pevent {.global.} : pointer
-  if unlikely(pevent.isNil):
-    var event = event($T & "::contract::method")
-    pevent = cast[pointer](event)
-  cast[Event](pevent)
 
 proc get_virtual_bind*(p_userdata: pointer; p_name: ConstStringNamePtr): ClassCallVirtual {.gdcall.} =
   cast[GodotClassMeta](p_userdata).virtualMethods.getOrDefault(cast[ptr StringName](p_name)[], nil)
@@ -27,5 +21,5 @@ proc sync_methodDef*(body: Nimnode): NimNode =
 
   quote do:
     `methoddef`
-    contract_method(`selfT`).process `methodstr`:
+    process(contract(`selfT`).virtual, `methodstr`):
       vmethods(`selfT`)[stringName `selfT`.EngineClass.vmap[`methodstr`]] = `methodname`

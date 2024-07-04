@@ -5,13 +5,32 @@ import std/macros
 import std/hashes
 import std/tables
 
+type SYNC* = enum
+  INSTANTIATE      = "SYNC--------INSTANTIATE: "
+  CREATE_BIND      = "SYNC----CREATE(LIBRARY): "
+  CREATE_CALL      = "SYNC----CREATE(BUILTIN): "
+  FREE_BIND        = "SYNC------FREE(LIBRARY): "
+  FREE_CALL        = "SYNC------FREE(BUILTIN): "
+  REFERENCE        = "SYNC-REFERENCE(BUILTIN): "
+  REFERENCE_BIND   = "SYNC----------REFERENCE: "
+  UNREFERENCE_BIND = "SYNC----------REFERENCE: "
+  ENCODE           = "SYNC-------------ENCODE: "
+  DECODE           = "SYNC-------------DECODE: "
+  DECODE_RESULT    = "SYNC-----DECODE(RESULT): "
+  DESTROY          = "SYNC------------DESTROY: "
+
 type
   ObjectControlFlag* = enum
     OC_wasLocked
 
   ObjectControl* = object
     owner*: ObjectPtr
+    name*: string
     flags*: set[ObjectControlFlag]
+
+proc `=destroy`(obj: ObjectControl) =
+  echo SYNC.DESTROY, obj.name
+  discard
 
 type
   GodotClass* = ref object of RootObj
@@ -43,22 +62,41 @@ template CLASS_unlockDestroy(class: GodotClass) =
 template CLASS_create*[T: GodotClass](o: ObjectPtr): T =
   T(
     control: ObjectControl(
-      owner: o
+      owner: o,
+      name: $typeof T,
     )
   )
 
-template CLASS_sync_create*(class: GodotClass) =
+template CLASS_sync_instantiate*[T: SomeClass](class: T) =
+  echo SYNC.INSTANTIATE, $typeof T
+
+template CLASS_sync_create_bind*[T: SomeClass](class: T) =
+  echo SYNC.CREATE_BIND, $typeof T
   CLASS_lockDestroy class
-template CLASS_sync_free*(class: GodotClass) =
+template CLASS_sync_create_call*[T: SomeClass](class: T) =
+  echo SYNC.CREATE_CALL, $typeof T
+  CLASS_lockDestroy class
+
+template CLASS_sync_free_bind*[T: SomeClass](class: T) =
+  echo SYNC.FREE_BIND, $typeof T
+template CLASS_sync_free_call*[T: SomeClass](class: T) =
+  echo SYNC.FREE_CALL, $typeof T
+
   CLASS_unlockDestroy class
-template CLASS_sync_refer*(class: GodotClass; reference: bool): bool =
+template CLASS_sync_refer*[T: SomeClass](class: T; reference: bool): bool =
+  echo SYNC.REFERENCE, $typeof T
   true
-template CLASS_sync_encode*(class: GodotClass) =
+
+template CLASS_sync_encode*[T: SomeClass](class: T) =
+  echo SYNC.ENCODE, $typeof T
   discard
-template CLASS_sync_decode*(class: GodotClass) =
+template CLASS_sync_decode*[T: SomeClass](class: T) =
+  echo SYNC.DECODE, $typeof T
   discard
-template CLASS_sync_decode_result*(class: GodotClass) =
+template CLASS_sync_decode_result*[T: SomeClass](class: T) =
+  echo SYNC.DECODE_RESULT, $typeof T
   discard
+
 
 
 proc bind_virtuals*(_: typedesc[GodotClass]; T: typedesc) = discard

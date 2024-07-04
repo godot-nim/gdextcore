@@ -14,16 +14,13 @@ type
 proc initialize(T: typedesc[SomeEngineClass]; userdata: GodotClassMeta) =
   userdata.callbacks.create_callback = proc (p_token: pointer; p_instance: pointer): pointer {.gdcall.} =
     let class = CLASS_create[T](cast[ObjectPtr](p_instance))
-    CLASS_sync_create class
+    CLASS_sync_create_call class
     result = cast[pointer](class)
   userdata.callbacks.free_callback = proc (p_token: pointer; p_instance: pointer; p_binding: pointer) {.gdcall.} =
-    CLASS_sync_free cast[T](p_binding)
+    CLASS_sync_free_call cast[T](p_binding)
 
 proc initialize(T: typedesc[SomeUserClass]; userdata: GodotClassMeta) =
-  userdata.callbacks.create_callback = proc (p_token: pointer; p_instance: pointer): pointer {.gdcall.} =
-    discard
-  userdata.callbacks.free_callback = proc (p_token: pointer; p_instance: pointer; p_binding: pointer) {.gdcall.} =
-    discard
+  discard
 
 var metaDB: Table[StringName, GodotClassMeta]
 proc Meta*(T: typedesc[SomeClass]): GodotClassMeta =

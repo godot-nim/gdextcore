@@ -1,6 +1,8 @@
 import std/macros
 
+import contracts
 import virtuals
+import procs
 
 import godotcore/internal/dirty/gdextension_interface
 import godotcore/internal/commandindex
@@ -12,12 +14,12 @@ import godotcore/internal/GodotClassMeta
 import godotcore/classtraits
 
 proc create_bind(T: typedesc[SomeUserClass]): ObjectPtr =
-  let class = instantiate T
-  CLASS_sync_create class
+  let class = instantiate_internal T
+  CLASS_sync_create_bind class
   return CLASS_getObjectPtr class
 
 proc free_bind[T: SomeUserClass](class: T) =
-  CLASS_sync_free class
+  CLASS_sync_free_bind class
 
 proc creationInfo(T: typedesc[SomeUserClass]; is_virtual, is_abstract: bool): ClassCreationInfo =
   ClassCreationInfo(
@@ -33,18 +35,26 @@ proc creationInfo(T: typedesc[SomeUserClass]; is_virtual, is_abstract: bool): Cl
     to_string_func: to_string_bind,
     create_instance_func: proc(p_userdata: pointer): ObjectPtr {.gdcall.} = T.create_bind(),
     free_instance_func: proc(p_userdata: pointer; p_instance: pointer) {.gdcall.} = cast[T](p_instance).free_bind(),
+    reference_func: (proc(p_instance: pointer) {.gdcall.} = echo SYNC.REFERENCE_BIND, $typeof T),
+    unreference_func: (proc(p_instance: pointer) {.gdcall.} = echo SYNC.UNREFERENCE_BIND, $typeof T),
     get_virtual_func: get_virtual_bind,
     class_userdata: cast[pointer](Meta(T)),
   )
+
+template name*(newname: string) {.pragma.}
 
 macro gdsync*(body): untyped =
   case body.kind
   of nnkMethodDef:
     sync_methodDef(body)
+  of nnkProcDef:
+    sync_procDef(body)
   else:
+    hint $body.kind
     body
+
 
 proc register*(T: typedesc) =
   let info = T.creationInfo(false, false)
   interface_ClassDB_registerExtensionClass(environment.library, addr className(T), addr className(T.Super), addr info)
-  invoke contract_method(T)
+  invoke contract(T)

@@ -194,9 +194,9 @@ type
     MethodArgumentMetadata_Int_is_Uint64
     MethodArgumentMetadata_Real_is_Float
     MethodArgumentMetadata_Real_is_Double
-  ClassMethodCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr ConstVariantPtr; p_argument_count: Int; r_return: VariantPtr; r_error: ptr CallError) {.gdcall.}
-  ClassMethodValidatedCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr ConstVariantPtr; r_return: VariantPtr) {.gdcall.}
-  ClassMethodPtrCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr ConstTypePtr; r_ret: TypePtr) {.gdcall.}
+  ClassMethodCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr UncheckedArray[ConstVariantPtr]; p_argument_count: Int; r_return: VariantPtr; r_error: ptr CallError) {.gdcall.}
+  ClassMethodValidatedCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr UncheckedArray[ConstVariantPtr]; r_return: VariantPtr) {.gdcall.}
+  ClassMethodPtrCall* = proc (method_userdata: pointer; p_instance: ClassInstancePtr; p_args: ptr UncheckedArray[ConstTypePtr]; r_ret: TypePtr) {.gdcall.}
   ClassMethodInfo* {.bycopy.} = object
     name*: StringNamePtr
     method_userdata*: pointer

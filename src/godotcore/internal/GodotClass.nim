@@ -120,39 +120,36 @@ method free_propertyList*(self: GodotClass; p_list: ptr PropertyInfo) {.base.} =
 proc hash(node: NimNode): Hash = hash node.signatureHash
 macro Super*(Type: typedesc): typedesc =
   var cache {.global.}: Table[NimNode, NimNode]
-  let typeSym = Type.getTypeImpl[1]
+  var typedef = Type.getTypeInst[1].getImpl
+  while typedef[2].kind notin {nnkRefTy, nnkObjectTy}:
+    typedef = typedef[2].getTypeInst.getImpl
 
-  try:
-    result = cache[typesym]
-    return
+  var typesym = typedef[0]
+  if typesym.kind == nnkPragmaExpr: typesym = typesym[0]
 
-  except:
-    # hint lisprepr typesym.getimpl
-    let typeDef = typeSym.getImpl
-    case typeDef.kind
-    of nnkTypeDef:
-      let typedefop = typedef[2]
-      let objectty = case typedefop.kind
-      of nnkRefTy:
-        typedefop[0]
-      of nnkDotExpr:
-        typedefop.getTypeImpl[0].getImpl[2]
-      else:
-        error "Parse Error", Type
-        nil
+  if typesym in cache:
+    return cache[typesym]
 
-      let ofInherit = objectty[1]
-      case ofInherit.kind
-      of nnkOfInherit:
-        cache[typeSym] = ofInherit[0]
-        return ofInherit[0]
+  case typeDef.kind
+  of nnkTypeDef:
+    var objectTy = typedef[2]
+    if objectTy.kind == nnkRefTy:
+      objectTy = objectTy[0]
 
-      of nnkEmpty:
-        error "Type has no super object", Type
-      else:
-        error "Parse Error", Type
+    let ofInherit = objectTy[1]
 
-    of nnkNilLit:
-      error "Type is not object.", Type
+    case ofInherit.kind
+    of nnkOfInherit:
+      cache[typesym] = ofInherit[0]
+      return ofInherit[0]
+
+    of nnkEmpty:
+      error "Type has no super object", Type
     else:
-      error "Parse Error.", Type
+      error "Parse Error", Type
+
+  of nnkNilLit:
+    error "Type is not object.", Type
+  else:
+    error "Parse Error.", Type
+

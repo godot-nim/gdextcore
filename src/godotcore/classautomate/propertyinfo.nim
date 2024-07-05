@@ -4,6 +4,7 @@ import godotcore/internal/dirty/gdextension_interface
 import godotcore/internal/builtinindex
 import godotcore/internal/extracommands
 import godotcore/internal/Variant
+import godotcore/internal/typeshift
 
 type PropertyHint* {.size: sizeof(cuint).} = enum
   propertyHintNone = 0

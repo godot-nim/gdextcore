@@ -5,7 +5,10 @@ import stdwrap/macros
 import godotcore/internal/dirty/gdextension_interface
 import godotcore/internal/commandindex
 import godotcore/internal/builtinindex
+import godotcore/internal/typeshift
+import godotcore/internal/Variant
 
+import propertyinfo
 
 type ClassMethodInfoGlue = ref object
   info*: ClassMethodInfo
@@ -38,14 +41,16 @@ proc parseMiddle(procdef: NimNode): MiddleExp =
 template hasResult(middle: MiddleExp): bool = middle.result_T != nil
 
 proc returnValueInfo(middle: MiddleExp): NimNode =
-  if middle.result_T != nil:
+  let retT = middle.result_T
+  if middle.hasResult:
     quote do:
-      propertyInfo(typedesc `middle.result_T`)
+      propertyInfo(typedesc `retT`)
   else: newNilLit()
 proc returnValueMeta(middle: MiddleExp): NimNode =
-  if middle.result_T != nil:
+  let retT = middle.result_T
+  if middle.hasResult:
     quote do:
-      metadata(typedesc `middle.result_T`)
+      metadata(typedesc `retT`)
   else: bindSym "MethodArgumentMetadata_None"
 
 proc argumentsInfo(middle: MiddleExp): NimNode =
@@ -56,7 +61,7 @@ proc argumentsInfo(middle: MiddleExp): NimNode =
   for (name, Type, _) in middle.args:
     let name = toStrLit name
     info.add quote do:
-      propertyInfo(typedesc `Type`, `name`)[]
+      propertyInfo(typedesc `Type`, stringName `name`)[]
 
   quote do:
     let info = `info`
@@ -92,7 +97,7 @@ proc callFunc(middle: MiddleExp): NimNode =
 
   for i, (name, Type, default) in middle.args:
     let i_lit = newlit i
-    call.add quote do: `p_args`[`i_lit`][].get(typedesc `Type`)
+    call.add quote do: cast[ptr Variant](`p_args`[`i_lit`])[].get(typedesc `Type`)
 
   let body =
     if middle.hasResult:

@@ -1,2 +1,2 @@
-import godotcore/internal/GodotClass; export GodotClass
-import godotcore/internal/builtinindex; export builtinindex
+import godotcore/GodotClass; export GodotClass
+import godotcore/builtinindex; export builtinindex

@@ -1,5 +1,5 @@
 import std/unittest
-import godotcore/internal/eventindex
+import godotcore/events
 
 suite "Event":
   test "test":

@@ -1,12 +1,12 @@
 import std/sequtils
 import std/macros
 
-import godotcore/internal/commandindex
-import godotcore/internal/builtinindex
-import godotcore/internal/extracommands
-import godotcore/internal/Variant
+import godotcore/commandindex
+import godotcore/builtinindex
+import godotcore/extracommands
+import godotcore/Variant
 
-from godotcore/internal/geometrics/typedef {.all.} import makevec
+from godotcore/geometrics/typedef {.all.} import makevec
 
 
 macro vector*(exp: varargs[typed]): untyped =

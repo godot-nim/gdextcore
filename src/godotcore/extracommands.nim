@@ -1,6 +1,6 @@
-import godotcore/internal/dirty/gdextension_interface
-import godotcore/internal/builtinindex
-import godotcore/internal/commandindex
+import godotcore/dirty/gdextension_interface
+import godotcore/builtinindex
+import godotcore/commandindex
 
 var newStringNameFromString: PtrConstructor
 var newStringFromStringName: PtrConstructor

@@ -1,9 +1,9 @@
-import godotcore/internal/dirty/gdextension_interface
-import godotcore/internal/builtinindex
-import godotcore/internal/commandindex
-import godotcore/internal/extracommands
-import godotcore/internal/Variant
-import godotcore/internal/GodotClass
+import godotcore/dirty/gdextension_interface
+import godotcore/builtinindex
+import godotcore/commandindex
+import godotcore/extracommands
+import godotcore/Variant
+import godotcore/GodotClass
 
 import std/macros
 

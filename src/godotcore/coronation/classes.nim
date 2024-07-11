@@ -1,12 +1,12 @@
-import godotcore/internal/dirty/gdextension_interface; export gdextension_interface
-import godotcore/internal/builtinindex; export builtinindex
-import godotcore/internal/commandindex; export commandindex
-import godotcore/internal/methodtools; export methodtools
-import godotcore/internal/typeshift; export typeshift
-import godotcore/internal/GodotClassMeta; export GodotClassMeta
-import godotcore/internal/Variant; export Variant
-import godotcore/internal/TypedArray; export TypedArray
-import godotcore/internal/extracommands; export gdstring, stringname, classname
+import godotcore/dirty/gdextension_interface; export gdextension_interface
+import godotcore/builtinindex; export builtinindex
+import godotcore/commandindex; export commandindex
+import godotcore/methodtools; export methodtools
+import godotcore/typeshift; export typeshift
+import godotcore/GodotClassMeta; export GodotClassMeta
+import godotcore/Variant; export Variant
+import godotcore/TypedArray; export TypedArray
+import godotcore/extracommands; export gdstring, stringname, classname
 
 import std/tables; export Table, toTable, initTable
 

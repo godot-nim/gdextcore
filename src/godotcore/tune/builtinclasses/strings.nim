@@ -1,3 +1,3 @@
-import godotcore/internal/extracommands
+import godotcore/extracommands
 
 export `$`

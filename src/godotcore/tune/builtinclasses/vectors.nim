@@ -1,4 +1,4 @@
-import godotcore/internal/geometrics
+import godotcore/geometrics
 
 {.push, inline.}
 

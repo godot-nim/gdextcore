@@ -1,7 +1,7 @@
-import godotcore/internal/dirty/gdextension_interface
-import godotcore/internal/builtinindex
-import godotcore/internal/extracommands
-import godotcore/internal/GodotClass
+import godotcore/dirty/gdextension_interface
+import godotcore/builtinindex
+import godotcore/extracommands
+import godotcore/GodotClass
 
 import std/tables
 

@@ -11,7 +11,7 @@ var
   variantFromType: array[Variant_Type, VariantFromTypeConstructorFunc]
   typeFromVariant: array[Variant_Type, TypeFromVariantConstructorFunc]
 
-proc load_converter* =
+proc load* =
   for i in (VariantType_Nil.succ)..<Variant_Type.high:
     variantFromType[i] = interface_getVariantFromTypeConstructor(Variant_Type i)
     typeFromVariant[i] = interface_getVariantToTypeConstructor(Variant_Type i)

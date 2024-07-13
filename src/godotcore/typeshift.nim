@@ -77,8 +77,6 @@ template variantType*(Type: typedesc[AltString]): Variant_Type = VariantType_Str
 
 {.push, inline.}
 
-template metadata*(T: typedesc): ClassMethodArgumentMetadata = MethodArgumentMetadata_None
-
 proc decode*[T](p: ptr T; _: typedesc[T]): T = p[]
 
 template encoded*[T: SomeBuiltins](_: typedesc[T]): typedesc[T] = T

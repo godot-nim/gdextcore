@@ -1,5 +1,7 @@
 import dirty/gdextension_interface
 import commandindex
+import builtinindex
+import extracommands
 
 import std/macros
 import std/hashes
@@ -35,8 +37,12 @@ proc `=destroy`(obj: ObjectControl) =
 type
   GodotClass* = ref object of RootObj
     control: ObjectControl
-  SomeClass* = GodotClass
+  GodotClassMeta* = ref object
+    virtualMethods*: TableRef[StringName, ClassCallVirtual]
+    className*: StringName
+    callbacks*: InstanceBindingCallbacks
 
+  SomeClass* = GodotClass
   SomeEngineClass* = concept type t
     t is GodotClass
     t.EngineClass is t
@@ -98,6 +104,50 @@ template CLASS_sync_decode_result*[T: SomeClass](class: T) =
   discard
 
 
+var metaDB: Table[StringName, GodotClassMeta]
+proc Meta*(T: typedesc[SomeClass]): GodotClassMeta =
+  # The global specification to reference seems to be invalid and behaves the same
+  # as a normal local variable. (It is immediately freed.)
+  var dataptr {.global.} : pointer
+  once:
+    var data = GodotClassMeta(
+      virtualMethods: new TableRef[StringName, ClassCallVirtual],
+      className: stringName $T,
+    )
+    data.callbacks.reference_callback =
+      when true:
+        proc (p_token: pointer; p_binding: pointer; p_reference: Bool): Bool {.gdcall.} =
+          CLASS_sync_refer cast[T](p_binding), p_reference
+
+    data.callbacks.create_callback =
+      when T is SomeEngineClass:
+        proc (p_token: pointer; p_instance: pointer): pointer {.gdcall.} =
+          let class = CLASS_create[T](cast[ObjectPtr](p_instance))
+          CLASS_sync_create_call class
+          result = cast[pointer](class)
+      else:
+        nil
+    data.callbacks.free_callback =
+      when T is SomeEngineClass:
+        proc (p_token: pointer; p_instance: pointer; p_binding: pointer) {.gdcall.} =
+          CLASS_sync_free_call cast[T](p_binding)
+      else:
+        nil
+
+    metaDB[data.className] = data
+    dataptr = cast[pointer](data)
+  cast[GodotClassMeta](dataptr)
+
+{.push, inline.}
+proc className*(T: typedesc[SomeClass]): var StringName =
+  Meta(T).className
+
+proc callbacks*(T: typedesc[SomeClass]): var InstanceBindingCallbacks =
+  Meta(T).callbacks
+
+proc vmethods*(T: typedesc[SomeClass]): TableRef[StringName, ClassCallVirtual] =
+  Meta(T).virtualMethods
+{.pop.}
 
 proc bind_virtuals*(_: typedesc[GodotClass]; T: typedesc) = discard
 
@@ -106,7 +156,7 @@ proc getInstance*[T: GodotClass](p_engine_object: ObjectPtr; _: typedesc[T]): T 
   result = cast[T](interface_objectGetInstanceBinding(p_engine_object, environment.library, addr T.callbacks))
 
 # User Class callbacks
-# ====================
+
 method notification*(self: GodotClass; p_what: int32) {.base.} = discard
 method set*(self: GodotClass; p_name: ConstStringNamePtr; p_value: ConstVariantPtr): Bool {.base.} = discard
 method get*(self: GodotClass; p_name: ConstStringNamePtr; r_ret: VariantPtr): Bool {.base.} = discard
@@ -116,7 +166,6 @@ method toString*(self: GodotClass; r_is_valid: ptr Bool; p_out: StringPtr) {.bas
 method get_propertyList*(self: GodotClass; r_count: ptr uint32): ptr PropertyInfo {.base.} = r_count[] = 0
 method free_propertyList*(self: GodotClass; p_list: ptr PropertyInfo) {.base.} = discard
 
-{.experimental: "dynamicBindSym".}
 proc hash(node: NimNode): Hash = hash node.signatureHash
 macro Super*(Type: typedesc): typedesc =
   var cache {.global.}: Table[NimNode, NimNode]

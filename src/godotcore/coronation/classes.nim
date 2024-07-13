@@ -3,7 +3,7 @@ import godotcore/builtinindex; export builtinindex
 import godotcore/commandindex; export commandindex
 import godotcore/methodtools; export methodtools
 import godotcore/typeshift; export typeshift
-import godotcore/GodotClassMeta; export GodotClassMeta
+import godotcore/GodotClass; export GodotClass
 import godotcore/Variant; export Variant
 import godotcore/TypedArray; export TypedArray
 import godotcore/extracommands; export gdstring, stringname, classname

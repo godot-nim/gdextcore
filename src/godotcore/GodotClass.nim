@@ -3,8 +3,7 @@ import commandindex
 import builtinindex
 import extracommands
 
-import std/macros
-import std/hashes
+import utils/macros
 import std/tables
 import std/typetraits
 
@@ -161,39 +160,4 @@ method toString*(self: GodotClass; r_is_valid: ptr Bool; p_out: StringPtr) {.bas
 method get_propertyList*(self: GodotClass; r_count: ptr uint32): ptr PropertyInfo {.base.} = r_count[] = 0
 method free_propertyList*(self: GodotClass; p_list: ptr PropertyInfo) {.base.} = discard
 
-proc hash(node: NimNode): Hash = hash node.signatureHash
-macro Super*(Type: typedesc): typedesc =
-  var cache {.global.}: Table[NimNode, NimNode]
-  var typedef = Type.getTypeInst[1].getImpl
-  while typedef[2].kind notin {nnkRefTy, nnkObjectTy}:
-    typedef = typedef[2].getTypeInst.getImpl
-
-  var typesym = typedef[0]
-  if typesym.kind == nnkPragmaExpr: typesym = typesym[0]
-
-  if typesym in cache:
-    return cache[typesym]
-
-  case typeDef.kind
-  of nnkTypeDef:
-    var objectTy = typedef[2]
-    if objectTy.kind == nnkRefTy:
-      objectTy = objectTy[0]
-
-    let ofInherit = objectTy[1]
-
-    case ofInherit.kind
-    of nnkOfInherit:
-      cache[typesym] = ofInherit[0]
-      return ofInherit[0]
-
-    of nnkEmpty:
-      error "Type has no super object", Type
-    else:
-      error "Parse Error", Type
-
-  of nnkNilLit:
-    error "Type is not object.", Type
-  else:
-    error "Parse Error.", Type
-
+macro Super*(Type: typedesc): typedesc = Type.super

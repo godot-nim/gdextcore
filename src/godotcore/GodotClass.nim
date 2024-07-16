@@ -6,6 +6,7 @@ import extracommands
 import std/macros
 import std/hashes
 import std/tables
+import std/typetraits
 
 type SYNC* = enum
   INSTANTIATE      = "SYNC--------INSTANTIATE: "
@@ -29,10 +30,6 @@ type
     owner*: ObjectPtr
     name*: string
     flags*: set[ObjectControlFlag]
-
-proc `=destroy`(obj: ObjectControl) =
-  echo SYNC.DESTROY, obj.name
-  discard
 
 type
   GodotClass* = ref object of RootObj
@@ -65,13 +62,11 @@ template CLASS_unlockDestroy(class: GodotClass) =
     GC_unref class
     class.control.flags.excl OC_wasLocked
 
-template CLASS_create*[T: GodotClass](o: ObjectPtr): T =
-  T(
+template CLASS_create*[T: SomeClass](Type: typedesc[T]; o: ObjectPtr): Type =
+  Type(
     control: ObjectControl(
       owner: o,
-      name: $typeof T,
-    )
-  )
+      name: $Type, ))
 
 template CLASS_sync_instantiate*[T: SomeClass](class: T) =
   echo SYNC.INSTANTIATE, $typeof T
@@ -85,12 +80,14 @@ template CLASS_sync_create_call*[T: SomeClass](class: T) =
 
 template CLASS_sync_free_bind*[T: SomeClass](class: T) =
   echo SYNC.FREE_BIND, $typeof T
+  CLASS_unlockDestroy class
 template CLASS_sync_free_call*[T: SomeClass](class: T) =
   echo SYNC.FREE_CALL, $typeof T
-
   CLASS_unlockDestroy class
+
 template CLASS_sync_refer*[T: SomeClass](class: T; reference: bool): bool =
-  echo SYNC.REFERENCE, $typeof T
+  let count = hook_getReferenceCount CLASS_getObjectPtr class
+  echo SYNC.REFERENCE, $typeof T, "(", (if reference: $count.pred & " +1" else: $count.succ & " -1"), ")"
   true
 
 template CLASS_sync_encode*[T: SomeClass](class: T) =
@@ -122,7 +119,7 @@ proc Meta*(T: typedesc[SomeClass]): GodotClassMeta =
     data.callbacks.create_callback =
       when T is SomeEngineClass:
         proc (p_token: pointer; p_instance: pointer): pointer {.gdcall.} =
-          let class = CLASS_create[T](cast[ObjectPtr](p_instance))
+          let class = CLASS_create(T, cast[ObjectPtr](p_instance))
           CLASS_sync_create_call class
           result = cast[pointer](class)
       else:
@@ -148,8 +145,6 @@ proc callbacks*(T: typedesc[SomeClass]): var InstanceBindingCallbacks =
 proc vmethods*(T: typedesc[SomeClass]): TableRef[StringName, ClassCallVirtual] =
   Meta(T).virtualMethods
 {.pop.}
-
-proc bind_virtuals*(_: typedesc[GodotClass]; T: typedesc) = discard
 
 proc getInstance*[T: GodotClass](p_engine_object: ObjectPtr; _: typedesc[T]): T =
   if p_engine_object.isNil: return

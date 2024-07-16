@@ -191,13 +191,17 @@ proc get*(v: Variant; T: typedesc[ObjectPtr]): T =
 
 template encoded*[T: SomeClass](_: typedesc[T]): typedesc[ObjectPtr] = ObjectPtr
 template encode*[T: SomeClass](v: T; p: pointer) =
+  CLASS_sync_encode v
   encode(CLASS_getObjectPtr v, p)
 proc decode*[T: SomeClass](p: pointer; _: typedesc[T]): T =
   result = p.decode(ObjectPtr).getInstance(T)
+  CLASS_sync_decode result
 proc variant*[T: SomeClass](v: T): Variant =
+  CLASS_sync_encode v
   variant CLASS_getObjectPtr v
 proc get*[T: SomeClass](v: Variant; _: typedesc[T]): T =
-  v.get(ObjectPtr).getInstance(T)
+  result = v.get(ObjectPtr).getInstance(T)
+  CLASS_sync_decode result
 
 
 proc decode_result*[T](p: pointer; _: typedesc[T]): T =

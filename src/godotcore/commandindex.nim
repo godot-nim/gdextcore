@@ -150,6 +150,22 @@ var
   interfaceEditorAddPlugin*: InterfaceEditorAddPlugin
   interfaceEditorRemovePlugin*: InterfaceEditorRemovePlugin
 
+when TargetVersion >= (4, 2):
+  var
+    interfaceStringResize*: InterfaceStringResize
+    interfaceStringNameNewWithLatin1Chars*: InterfaceStringNameNewWithLatin1Chars
+    interfaceStringNameNewWithUtf8Chars*: InterfaceStringNameNewWithUtf8Chars
+    interfaceStringNameNewWithUtf8CharsAndLen*: InterfaceStringNameNewWithUtf8CharsAndLen
+    interfaceObjectFreeInstanceBinding*: InterfaceObjectFreeInstanceBinding
+    interfaceScriptInstanceCreate2*: InterfaceScriptInstanceCreate2
+    interfacePlaceHolderScriptInstanceCreate*: InterfacePlaceHolderScriptInstanceCreate
+    interfacePlaceHolderScriptInstanceUpdate*: InterfacePlaceHolderScriptInstanceUpdate
+    interfaceObjectGetScriptInstance*: InterfaceObjectGetScriptInstance
+    interfaceCallableCustomCreate*: InterfaceCallableCustomCreate
+    interfaceCallableCustomGetUserData*: InterfaceCallableCustomGetUserData
+    interfaceClassdbRegisterExtensionClass2*: InterfaceClassdbRegisterExtensionClass2
+    interfaceClassdbRegisterExtensionClassPropertyIndexed*: InterfaceClassdbRegisterExtensionClassPropertyIndexed
+
 proc load* =
   let getProcAddress = environment.getProcAddress
   interfaceGetGodotVersion = cast[InterfaceGetGodotVersion](getProcAddress(cstring "get_godot_version"))
@@ -288,5 +304,20 @@ proc load* =
   interfaceGetLibraryPath = cast[InterfaceGetLibraryPath](getProcAddress(cstring "get_library_path"))
   interfaceEditorAddPlugin = cast[InterfaceEditorAddPlugin](getProcAddress(cstring "editor_add_plugin"))
   interfaceEditorRemovePlugin = cast[InterfaceEditorRemovePlugin](getProcAddress(cstring "editor_remove_plugin"))
+
+  when TargetVersion >= (4, 2):
+    interfaceStringResize = cast[InterfaceStringResize](getProcAddress(cstring "string_resize"))
+    interfaceStringNameNewWithLatin1Chars = cast[InterfaceStringNameNewWithLatin1Chars](getProcAddress(cstring "string_name_new_with_latin1_chars"))
+    interfaceStringNameNewWithUtf8Chars = cast[InterfaceStringNameNewWithUtf8Chars](getProcAddress(cstring "string_name_new_with_utf8_chars"))
+    interfaceStringNameNewWithUtf8CharsAndLen = cast[InterfaceStringNameNewWithUtf8CharsAndLen](getProcAddress(cstring "string_name_new_with_utf8_chars_and_len"))
+    interfaceObjectFreeInstanceBinding = cast[InterfaceObjectFreeInstanceBinding](getProcAddress(cstring "object_free_instance_binding"))
+    interfaceScriptInstanceCreate2 = cast[InterfaceScriptInstanceCreate2](getProcAddress(cstring "script_instance_create2"))
+    interfacePlaceHolderScriptInstanceCreate = cast[InterfacePlaceHolderScriptInstanceCreate](getProcAddress(cstring "place_holder_script_instance_create"))
+    interfacePlaceHolderScriptInstanceUpdate = cast[InterfacePlaceHolderScriptInstanceUpdate](getProcAddress(cstring "place_holder_script_instance_update"))
+    interfaceObjectGetScriptInstance = cast[InterfaceObjectGetScriptInstance](getProcAddress(cstring "object_get_script_instance"))
+    interfaceCallableCustomCreate = cast[InterfaceCallableCustomCreate](getProcAddress(cstring "callable_custom_create"))
+    interfaceCallableCustomGetUserData = cast[InterfaceCallableCustomGetUserData](getProcAddress(cstring "callable_custom_get_userdata"))
+    interfaceClassdbRegisterExtensionClass2 = cast[InterfaceClassdbRegisterExtensionClass2](getProcAddress(cstring "classdb_register_extension_class2"))
+    interfaceClassdbRegisterExtensionClassPropertyIndexed = cast[InterfaceClassdbRegisterExtensionClassPropertyIndexed](getProcAddress(cstring "classdb_register_extension_class_property_indexed"))
 
   interfaceGetGodotVersion(addr environment.version)

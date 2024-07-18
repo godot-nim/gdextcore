@@ -5,6 +5,7 @@ export stdmath except
   arcsin, arccos, arctan, arctan2
 export builtin_bswap16, builtin_bswap32, builtin_bswap64
 
+import godotcore/dirty/gdextension_interface
 import ./typedef
 
 const SQRT12* = 0.7071067811865475244008443621048490
@@ -19,8 +20,6 @@ template `*`*[F: SomeFLoat; I: SomeInteger](f:F; i:I): F = f*F(i)
 template `*`*[F: SomeFLoat; I: SomeInteger](i:I; f:F): F = F(i)*i
 template `/`*[F: SomeFLoat; I: SomeInteger](f:F; i:I): F = f/F(i)
 template `/`*[F: SomeFLoat; I: SomeInteger](i:I; f:F): F = F(i)/i
-
-template sign*[T](x: T): int = cmp(x, 0)
 
 func min*[T](x: T; xs: varargs[T]): T =
   result = x
@@ -248,7 +247,7 @@ proc isEqualApprox*[T: SomeFloat](a, b: T): bool {.inline.} =
   let tolerance = max(T(CMP_EPSILON) * abs(a), T(CMP_EPSILON))
   abs(a - b) < tolerance
 
-proc isEqualApprox*(a, b, tolerance: float): bool {.inline.} =
+proc isEqualApprox*[T: SomeFloat](a, b, tolerance: T): bool {.inline.} =
   if a == b: return true
   abs(a - b) < tolerance
 
@@ -290,16 +289,20 @@ inline double db2linear(double p_db) {
 inline float db2linear(float p_db) {
   return exp(p_db * 0.11512925464970228420089957273422f);
 }
-inline int64_t wrapi(int64_t value, int64_t min, int64_t max) {
-  int64_t range = max - min;
-  return range == 0 ? min : min + ((((value - min) % range) + range) % range);
-}
+]#
 
-inline float wrapf(real_t value, real_t min, real_t max) {
-  const real_t range = max - min;
-  return is_zero_approx(range) ? min : value - (range * floor((value - min) / range));
-}
+proc wrap*[T: SomeInteger](value, min, max: T): T =
+  let range = max - min
+  if range == 0: min
+  else:
+    min + ((((value - min) mod range) + range) mod range)
 
+proc wrap*[T: SomeFloat](value, min, max: T): T =
+  let range = max - min
+  if is_zero_approx(range): min
+  else: value - (range * floor((value - min) / range))
+
+#[
 inline float fract(float value) {
   return value - floor(value);
 }
@@ -340,12 +343,9 @@ inline int fast_ftoi(float a) {
   return b;
 }
 ]#
-proc snapped*[T: SomeFLoat](value, step: T): T =
-  if step == 0: return value
-  floor(value / step + 0.5) * step
-proc snapped*[T: SomeInteger](value, step: T): T =
-  if step == 0: return value
-  ((value + int(step / 2)) div step) * step
+proc snapped*[T: SomeFloat; S: SomeNumber](value: T; step: S): S =
+  if step == 0: return S value
+  S floor(value / step + 0.5) * step
 #[
 inline float snap_scalar(float p_offset, float p_step, float p_target) {
   return p_step != 0 ? Math::snapped(p_target - p_offset, p_step) + p_offset : p_target;
@@ -365,3 +365,38 @@ inline float snap_scalar_separation(float p_offset, float p_step, float p_target
   return p_target;
 }
 ]#
+
+template sign*[T: SomeNumber](x: T): T = cmp(x, 0)
+template wrap*[T](value: T, bounds: Slice[T]): T = wrap(value, bounds.a, bounds.b)
+template clamp*[T](x, min, max: T): T = x.clamp(min..max)
+
+# Godot-style aliases
+# -------------------
+
+template asin*[T: SomeFloat](pX: T): Radian[T] = arcsin pX
+template acos*[T: SomeFloat](pX: T): Radian[T] = arccos pX
+template atan*[T: SomeFloat](pX: T): Radian[T] = arctan pX
+template atan2*[T: SomeFloat](pY, pX: T): Radian[T] = arctan2(pY, pX)
+template fmod*[T: SomeNumber](x, y: T): T = floorMod(x, y)
+template fposmod*[T: SomeFloat](x, y: T): T = posmod(x, y)
+template floorf*[T: SomeFloat](x: T): T = floor x
+template floori*[T: SomeFloat](x: T): Int = Int floor x
+template ceilf*[T: SomeFloat](x: T): T = ceil x
+template ceili*[T: SomeFloat](x: T): Int = Int ceil x
+template roundf*[T: SomeFloat](x: T): T = round x
+template roundi*[T: SomeFloat](x: T): Int = Int round x
+template absf*[T: SomeFloat](x: T): T = abs x
+template absi*[T: SomeInteger](x: T): T = abs x
+template signf*[T: SomeFloat](x: T): T = cmp(x, 0)
+template signi*[T: SomeInteger](x: T): T = cmp(x, 0)
+template snappedf*[T: SomeFloat; S: SomeFLoat](value: T; step: S): S = snapped(value, step)
+template snappedi*[T: SomeFloat; S: SomeInteger](value: T; step: S): S = snapped(value, step)
+template isInf*[T: SomeFloat](x: T): bool = x == Inf or x == NegInf
+template wrapf*[T: SomeFloat](value, min, max: T): T = wrap(value, min, max)
+template wrapi*[T: SomeInteger](value, min, max: T): T = wrap(value, min, max)
+template maxf*[T: SomeFloat](a, b: T): T = max(a, b)
+template maxi*[T: SomeInteger](a, b: T): T = max(a, b)
+template minf*[T: SomeFloat](a, b: T): T = min(a, b)
+template mini*[T: SomeInteger](a, b: T): T = min(a, b)
+template clampf*[T: SomeFloat](value, min, max: T): T = clamp(value, min, max)
+template clampi*[T: SomeInteger](value, min, max: T): T = clamp(value, min, max)

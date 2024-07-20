@@ -368,7 +368,6 @@ inline float snap_scalar_separation(float p_offset, float p_step, float p_target
 
 template sign*[T: SomeNumber](x: T): T = cmp(x, 0)
 template wrap*[T](value: T, bounds: Slice[T]): T = wrap(value, bounds.a, bounds.b)
-template clamp*[T](x, min, max: T): T = x.clamp(min..max)
 
 # Godot-style aliases
 # -------------------

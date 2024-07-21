@@ -4,6 +4,7 @@ import godotcore/commandindex
 import godotcore/extracommands
 import godotcore/Variant
 import godotcore/GodotClass
+import godotcore/gdrefs
 
 import std/macros
 
@@ -61,6 +62,8 @@ template variantType*(_: typedesc[PackedColorArray]): VariantType = VariantType_
 
 template variantType*(Type: typedesc[ObjectPtr]): Variant_Type = VariantType_Object
 template variantType*(Type: typedesc[GodotClass]): Variant_Type = VariantType_Object
+
+template variantType*(Type: typedesc[GdRef]): Variant_Type = VariantType_Object
 
 # Variant
 
@@ -206,5 +209,18 @@ proc get*[T: SomeClass](v: Variant; _: typedesc[T]): T =
 
 proc decode_result*[T](p: pointer; _: typedesc[T]): T =
   p.decode(T)
+
+template encoded*[T: SomeRefCounted](_: typedesc[GdRef[T]]): typedesc[ObjectPtr] = ObjectPtr
+template encode*[T: SomeRefCounted](v: GdRef[T]; p: pointer) =
+  v.unwrapped.encode(p)
+proc decode*[T: SomeRefCounted](p: pointer; Result: typedesc[GdRef[T]]): Result =
+  p.decode(T).referenced
+proc variant*[T: SomeRefCounted](v: GdRef[T]): Variant =
+  v.unwrapped.variant
+proc get*[T: SomeRefCounted](v: Variant; Result: typedesc[GdRef[T]]): Result =
+  v.get(T).referenced
+
+proc decode_result*[T: SomeRefCounted](p: pointer; Result: typedesc[GdRef[T]]): Result =
+  p.decode_result(T).asGdRef
 
 {.pop.}

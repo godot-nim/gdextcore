@@ -46,6 +46,8 @@ type
     t is GodotClass
     t.EngineClass isnot t
 
+template isRefCounted*(_: typedesc[GodotClass]): static bool = false
+
 template CLASS_getObjectPtr*(class: GodotClass): ObjectPtr =
   if class.isNil: nil
   else: class.control.owner

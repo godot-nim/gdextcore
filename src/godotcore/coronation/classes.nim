@@ -6,6 +6,7 @@ import godotcore/typeshift; export typeshift
 import godotcore/GodotClass; export GodotClass
 import godotcore/Variant; export Variant
 import godotcore/TypedArray; export TypedArray
+import godotcore/gdrefs; export gdrefs
 import godotcore/extracommands; export gdstring, stringname, classname
 
 import std/tables; export Table, toTable, initTable

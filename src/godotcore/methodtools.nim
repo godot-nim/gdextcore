@@ -1,6 +1,7 @@
 import dirty/gdextension_interface
 import Variant
 import GodotClass
+import gdrefs
 
 export gdcall
 
@@ -14,7 +15,7 @@ template getPtr*[T: GodotClass](v: T): pointer =
   else:
     CLASS_sync_encode v
     cast[pointer](CLASS_getObjectPtrPtr v)
-# template getPtr*[T: RefCountedBase](v: CLASS_ref[T]): pointer =
-#   getPtr v.handle
+template getPtr*(v: GdRef): pointer =
+  getPtr v.handle
 
 template getTypedPtr*(v: Variant): VariantPtr = addr v

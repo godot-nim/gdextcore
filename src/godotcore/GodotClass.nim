@@ -7,19 +7,22 @@ import utils/macros
 import std/tables
 import std/typetraits
 
-type SYNC* = enum
-  INSTANTIATE      = "SYNC--------INSTANTIATE: "
-  CREATE_BIND      = "SYNC----CREATE(LIBRARY): "
-  CREATE_CALL      = "SYNC----CREATE(BUILTIN): "
-  FREE_BIND        = "SYNC------FREE(LIBRARY): "
-  FREE_CALL        = "SYNC------FREE(BUILTIN): "
-  REFERENCE        = "SYNC-REFERENCE(BUILTIN): "
-  REFERENCE_BIND   = "SYNC----------REFERENCE: "
-  UNREFERENCE_BIND = "SYNC----------REFERENCE: "
-  ENCODE           = "SYNC-------------ENCODE: "
-  DECODE           = "SYNC-------------DECODE: "
-  DECODE_RESULT    = "SYNC-----DECODE(RESULT): "
-  DESTROY          = "SYNC------------DESTROY: "
+const EnableDebugInterface {.booldefine.} = false
+
+when EnableDebugInterface:
+  type SYNC* = enum
+    INSTANTIATE      = "SYNC--------INSTANTIATE: "
+    CREATE_BIND      = "SYNC----CREATE(LIBRARY): "
+    CREATE_CALL      = "SYNC----CREATE(BUILTIN): "
+    FREE_BIND        = "SYNC------FREE(LIBRARY): "
+    FREE_CALL        = "SYNC------FREE(BUILTIN): "
+    REFERENCE        = "SYNC-REFERENCE(BUILTIN): "
+    REFERENCE_BIND   = "SYNC----------REFERENCE: "
+    UNREFERENCE_BIND = "SYNC----------REFERENCE: "
+    ENCODE           = "SYNC-------------ENCODE: "
+    DECODE           = "SYNC-------------DECODE: "
+    DECODE_RESULT    = "SYNC-----DECODE(RESULT): "
+    DESTROY          = "SYNC------------DESTROY: "
 
 type
   ObjectControlFlag* = enum
@@ -27,8 +30,9 @@ type
 
   ObjectControl* = object
     owner*: ObjectPtr
-    name*: string
     flags*: set[ObjectControlFlag]
+    when EnableDebugInterface:
+      name*: string
 
 type
   GodotClass* = ref object of RootObj
@@ -64,41 +68,64 @@ template CLASS_unlockDestroy(class: GodotClass) =
     class.control.flags.excl OC_wasLocked
 
 template CLASS_create*[T: SomeClass](Type: typedesc[T]; o: ObjectPtr): Type =
-  Type(
-    control: ObjectControl(
-      owner: o,
-      name: $Type, ))
+  when EnableDebugInterface:
+    Type(
+      control: ObjectControl(
+        owner: o,
+        name: $Type, ))
+  else:
+    Type(
+      control: ObjectControl(
+        owner: o, ))
 
 template CLASS_sync_instantiate*[T: SomeClass](class: T) =
-  echo SYNC.INSTANTIATE, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.INSTANTIATE, $typeof T
 
 template CLASS_sync_create_bind*[T: SomeClass](class: T) =
-  echo SYNC.CREATE_BIND, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.CREATE_BIND, $typeof T
   CLASS_lockDestroy class
 template CLASS_sync_create_call*[T: SomeClass](class: T) =
-  echo SYNC.CREATE_CALL, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.CREATE_CALL, $typeof T
   CLASS_lockDestroy class
 
 template CLASS_sync_free_bind*[T: SomeClass](class: T) =
-  echo SYNC.FREE_BIND, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.FREE_BIND, $typeof T
   CLASS_unlockDestroy class
 template CLASS_sync_free_call*[T: SomeClass](class: T) =
-  echo SYNC.FREE_CALL, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.FREE_CALL, $typeof T
   CLASS_unlockDestroy class
 
 template CLASS_sync_refer*[T: SomeClass](class: T; reference: bool): bool =
-  let count = hook_getReferenceCount CLASS_getObjectPtr class
-  echo SYNC.REFERENCE, $typeof T, "(", (if reference: $count.pred & " +1" else: $count.succ & " -1"), ")"
+  when EnableDebugInterface:
+    let count = hook_getReferenceCount CLASS_getObjectPtr class
+    echo SYNC.REFERENCE, $typeof T, "(", (if reference: $count.pred & " +1" else: $count.succ & " -1"), ")"
   true
 
+template CLASS_sync_reference_bind*[T: SomeClass](class: T) =
+  when EnableDebugInterface:
+    let count = hook_getReferenceCount CLASS_getObjectPtr class
+    echo SYNC.REFERENCE_BIND, $typeof T, "(", $count.pred & " +1)"
+template CLASS_sync_unreference_bind*[T: SomeClass](class: T) =
+  when EnableDebugInterface:
+    let count = hook_getReferenceCount CLASS_getObjectPtr class
+    echo SYNC.UNREFERENCE_BIND, $typeof T, "(", $count.succ & " -1)"
+
 template CLASS_sync_encode*[T: SomeClass](class: T) =
-  echo SYNC.ENCODE, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.ENCODE, $typeof T
   discard
 template CLASS_sync_decode*[T: SomeClass](class: T) =
-  echo SYNC.DECODE, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.DECODE, $typeof T
   discard
 template CLASS_sync_decode_result*[T: SomeClass](class: T) =
-  echo SYNC.DECODE_RESULT, $typeof T
+  when EnableDebugInterface:
+    echo SYNC.DECODE_RESULT, $typeof T
   discard
 
 

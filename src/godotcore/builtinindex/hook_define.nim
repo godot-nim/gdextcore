@@ -13,7 +13,6 @@ var hook_destroy_String: PtrDestructor
 proc hook_destroy(value: String) =
   hook_destroy_String(addr value)
 proc `=destroy`(val: String) =
-  if val == String(): return
   try:
     hook_destroy(val)
   except: discard
@@ -32,7 +31,6 @@ var hook_destroy_StringName: PtrDestructor
 proc hook_destroy(value: StringName) =
   hook_destroy_StringName(addr value)
 proc `=destroy`(val: StringName) =
-  if val == StringName(): return
   try:
     hook_destroy(val)
   except: discard
@@ -51,7 +49,6 @@ var hook_destroy_NodePath: PtrDestructor
 proc hook_destroy(value: NodePath) =
   hook_destroy_NodePath(addr value)
 proc `=destroy`(val: NodePath) =
-  if val == NodePath(): return
   try:
     hook_destroy(val)
   except: discard
@@ -81,7 +78,6 @@ var hook_destroy_Callable: PtrDestructor
 proc hook_destroy(value: Callable) =
   hook_destroy_Callable(addr value)
 proc `=destroy`(val: Callable) =
-  if val == Callable(): return
   try:
     hook_destroy(val)
   except: discard
@@ -100,7 +96,6 @@ var hook_destroy_Signal: PtrDestructor
 proc hook_destroy(value: Signal) =
   hook_destroy_Signal(addr value)
 proc `=destroy`(val: Signal) =
-  if val == Signal(): return
   try:
     hook_destroy(val)
   except: discard
@@ -119,7 +114,6 @@ var hook_destroy_Dictionary: PtrDestructor
 proc hook_destroy(value: Dictionary) =
   hook_destroy_Dictionary(addr value)
 proc `=destroy`(val: Dictionary) =
-  if val == Dictionary(): return
   try:
     hook_destroy(val)
   except: discard
@@ -138,7 +132,6 @@ var hook_destroy_Array: PtrDestructor
 proc hook_destroy(value: Array) =
   hook_destroy_Array(addr value)
 proc `=destroy`(val: Array) =
-  if val == Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -157,7 +150,6 @@ var hook_destroy_PackedByteArray: PtrDestructor
 proc hook_destroy(value: PackedByteArray) =
   hook_destroy_PackedByteArray(addr value)
 proc `=destroy`(val: PackedByteArray) =
-  if val == PackedByteArray(): return
   try:
     hook_destroy(val)
   except: discard
@@ -176,7 +168,6 @@ var hook_destroy_PackedInt32Array: PtrDestructor
 proc hook_destroy(value: PackedInt32Array) =
   hook_destroy_PackedInt32Array(addr value)
 proc `=destroy`(val: PackedInt32Array) =
-  if val == PackedInt32Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -195,7 +186,6 @@ var hook_destroy_PackedInt64Array: PtrDestructor
 proc hook_destroy(value: PackedInt64Array) =
   hook_destroy_PackedInt64Array(addr value)
 proc `=destroy`(val: PackedInt64Array) =
-  if val == PackedInt64Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -214,7 +204,6 @@ var hook_destroy_PackedFloat32Array: PtrDestructor
 proc hook_destroy(value: PackedFloat32Array) =
   hook_destroy_PackedFloat32Array(addr value)
 proc `=destroy`(val: PackedFloat32Array) =
-  if val == PackedFloat32Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -233,7 +222,6 @@ var hook_destroy_PackedFloat64Array: PtrDestructor
 proc hook_destroy(value: PackedFloat64Array) =
   hook_destroy_PackedFloat64Array(addr value)
 proc `=destroy`(val: PackedFloat64Array) =
-  if val == PackedFloat64Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -252,7 +240,6 @@ var hook_destroy_PackedStringArray: PtrDestructor
 proc hook_destroy(value: PackedStringArray) =
   hook_destroy_PackedStringArray(addr value)
 proc `=destroy`(val: PackedStringArray) =
-  if val == PackedStringArray(): return
   try:
     hook_destroy(val)
   except: discard
@@ -271,7 +258,6 @@ var hook_destroy_PackedVector2Array: PtrDestructor
 proc hook_destroy(value: PackedVector2Array) =
   hook_destroy_PackedVector2Array(addr value)
 proc `=destroy`(val: PackedVector2Array) =
-  if val == PackedVector2Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -290,7 +276,6 @@ var hook_destroy_PackedVector3Array: PtrDestructor
 proc hook_destroy(value: PackedVector3Array) =
   hook_destroy_PackedVector3Array(addr value)
 proc `=destroy`(val: PackedVector3Array) =
-  if val == PackedVector3Array(): return
   try:
     hook_destroy(val)
   except: discard
@@ -309,7 +294,6 @@ var hook_destroy_PackedColorArray: PtrDestructor
 proc hook_destroy(value: PackedColorArray) =
   hook_destroy_PackedColorArray(addr value)
 proc `=destroy`(val: PackedColorArray) =
-  if val == PackedColorArray(): return
   try:
     hook_destroy(val)
   except: discard

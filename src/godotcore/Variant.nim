@@ -1,5 +1,4 @@
 import commandindex
-import builtinindex
 
 type
   Variant* {.byref.} = object
@@ -14,8 +13,7 @@ proc `=destroy`(x: Variant)
 
 proc `=destroy`(x: Variant) =
   try:
-    if x != Variant():
-      interface_variantDestroy(addr x)
+    interface_variantDestroy(addr x)
   except: discard
 proc `=dup`(x: Variant): Variant =
   interface_variantNewCopy(addr result, addr x)

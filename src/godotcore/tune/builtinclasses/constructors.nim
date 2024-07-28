@@ -20,6 +20,16 @@ macro vectori*(exp: varargs[typed]): untyped =
   result.add res.lets
   result.add nnkBracket.newTree res.brackets.mapIt quote do: int_elem(`it`)
 
+{.push, inline.}
+proc vector2*(x, y: real_elem): Vector2 = [x, y]
+proc vector3*(x, y, z: real_elem): Vector3 = [x, y, z]
+proc vector4*(x, y, z, w: real_elem): Vector4 = [x, y, z, w]
+
+proc vector2i*(x, y: int_elem): Vector2i = [x, y]
+proc vector3i*(x, y, z: int_elem): Vector3i = [x, y, z]
+proc vector4i*(x, y, z, w: int_elem): Vector4i = [x, y, z, w]
+{.pop.}
+
 export gdstring
 export stringName
 

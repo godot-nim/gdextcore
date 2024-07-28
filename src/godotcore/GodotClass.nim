@@ -67,16 +67,20 @@ template CLASS_unlockDestroy(class: GodotClass) =
     GC_unref class
     class.control.flags.excl OC_wasLocked
 
+method init*(self: GodotClass) {.base.}
+
 template CLASS_create*[T: SomeClass](Type: typedesc[T]; o: ObjectPtr): Type =
   when EnableDebugInterface:
-    Type(
+    var res = Type(
       control: ObjectControl(
         owner: o,
         name: $Type, ))
   else:
-    Type(
+    var res = Type(
       control: ObjectControl(
         owner: o, ))
+  init res
+  res
 
 template CLASS_sync_instantiate*[T: SomeClass](class: T) =
   when EnableDebugInterface:
@@ -180,6 +184,7 @@ proc getInstance*[T: GodotClass](p_engine_object: ObjectPtr; _: typedesc[T]): T 
 
 # User Class callbacks
 
+method init*(self: GodotClass) {.base.} = discard
 method notification*(self: GodotClass; p_what: int32) {.base.} = discard
 method set*(self: GodotClass; p_name: ConstStringNamePtr; p_value: ConstVariantPtr): Bool {.base.} = discard
 method get*(self: GodotClass; p_name: ConstStringNamePtr; r_ret: VariantPtr): Bool {.base.} = discard

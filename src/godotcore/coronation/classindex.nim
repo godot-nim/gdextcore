@@ -1,1 +1,0 @@
-import godotcore/gdclass; export gdclass

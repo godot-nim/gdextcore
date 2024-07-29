@@ -1,10 +1,10 @@
-import godotcore/dirty/gdextensioninterface
-import godotcore/builtinindex
-import godotcore/commandindex
-import godotcore/extracommands
-import godotcore/gdvariant
-import godotcore/gdclass
-import godotcore/gdrefs
+import gdextcore/dirty/gdextensioninterface
+import gdextcore/builtinindex
+import gdextcore/commandindex
+import gdextcore/extracommands
+import gdextcore/gdvariant
+import gdextcore/gdclass
+import gdextcore/gdrefs
 
 import std/macros
 

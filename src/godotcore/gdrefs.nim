@@ -1,5 +1,5 @@
 import godotcore/extracommands
-import godotcore/GodotClass
+import godotcore/gdclass
 
 type
   SomeRefCounted* = concept type t

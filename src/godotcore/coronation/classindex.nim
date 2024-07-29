@@ -1,1 +1,1 @@
-import godotcore/GodotClass; export GodotClass
+import godotcore/gdclass; export gdclass

@@ -1,8 +1,8 @@
-import godotcore/dirty/[ gdextension_interface ]
-export                   gdextension_interface
+import godotcore/dirty/[ gdextensioninterface ]
+export                   gdextensioninterface
 
 import godotcore/[ builtinindex, commandindex, extracommands, methodtools]
 export             builtinindex, commandindex, extracommands, methodtools
 
-import godotcore/[ Variant, GodotClass ]
-export             Variant, GodotClass
+import godotcore/[ gdvariant, gdclass ]
+export             gdvariant, gdclass

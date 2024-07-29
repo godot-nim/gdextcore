@@ -4,7 +4,7 @@ import std/macros
 import godotcore/commandindex
 import godotcore/builtinindex
 import godotcore/extracommands
-import godotcore/Variant
+import godotcore/gdvariant
 
 from godotcore/geometrics/typedef {.all.} import makevec
 

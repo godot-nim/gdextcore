@@ -1,6 +1,6 @@
-import dirty/gdextension_interface
-import Variant
-import GodotClass
+import dirty/gdextensioninterface
+import gdvariant
+import gdclass
 import gdrefs
 
 export gdcall

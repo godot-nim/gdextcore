@@ -1,10 +1,10 @@
-import godotcore/dirty/gdextension_interface; export gdextension_interface
+import godotcore/dirty/gdextensioninterface; export gdextensioninterface
 import godotcore/builtinindex; export builtinindex
 import godotcore/commandindex; export commandindex
 import godotcore/events; export events
 import godotcore/staticevents; export staticevents
-import godotcore/Variant; export Variant
-import godotcore/GodotClass; export GodotClass
+import godotcore/gdvariant; export gdvariant
+import godotcore/gdclass; export gdclass
 import godotcore/methodtools; export methodtools
 
 from std/unicode import Rune; export Rune

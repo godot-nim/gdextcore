@@ -1,4 +1,4 @@
-import dirty/gdextension_interface
+import dirty/gdextensioninterface
 import config
 import geometrics
 import commandindex
@@ -158,5 +158,5 @@ type SomeGodotUniques* =
   SomePackedArray
 type SomeBuiltins* = SomePrimitives|SomeGodotUniques
 
-include "builtinindex/hook_prototype"
-include "builtinindex/hook_define"
+include "builtinindex/hookprototype"
+include "builtinindex/hookdefine"

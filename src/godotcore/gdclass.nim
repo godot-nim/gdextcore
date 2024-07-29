@@ -1,4 +1,4 @@
-import dirty/gdextension_interface
+import dirty/gdextensioninterface
 import commandindex
 import builtinindex
 import extracommands

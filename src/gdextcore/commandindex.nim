@@ -1,4 +1,4 @@
-import dirty/gdextension_interface
+import dirty/gdextensioninterface
 
 type Environment* = ref object
   getProcAddress*: InterfaceGetProcAddress

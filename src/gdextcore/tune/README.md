@@ -1,4 +1,4 @@
-# godotcore/tune
+# gdextcore/tune
 
 Functions that have been switched from auto-generated to self-implemented for execution efficiency or usability are placed here.
 <br>

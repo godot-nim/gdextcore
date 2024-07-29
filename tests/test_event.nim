@@ -1,5 +1,5 @@
 import std/unittest
-import godotcore/events
+import gdextcore/events
 
 suite "Event":
   test "test":

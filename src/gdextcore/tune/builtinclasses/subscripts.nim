@@ -1,5 +1,5 @@
 import std/strformat
-import godotcore/builtinindex
+import gdextcore/builtinindex
 
 proc `[]`*(self: Color; index: int): float_elem =
   if index notin 0..3: raise newException(IndexDefect, &"index must be in [0..3]; but got {index}")

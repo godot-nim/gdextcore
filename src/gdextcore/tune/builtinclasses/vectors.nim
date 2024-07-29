@@ -1,8 +1,8 @@
-import godotcore/geometrics
+import gdextcore/geometrics
 
 {.push, inline.}
 
-export vectorCommons
+export vectormath
 
 # Functions
 # ---------

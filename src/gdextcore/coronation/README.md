@@ -1,4 +1,4 @@
-# godotcore/coronation
+# gdextcore/coronation
 
 This directory is use to configure coronation's module import settings.
 <br>

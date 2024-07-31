@@ -8,6 +8,7 @@ import gdextcore/gdvariant; export gdvariant
 import gdextcore/gdtypedarray; export gdtypedarray
 import gdextcore/gdrefs; export gdrefs
 import gdextcore/extracommands; export gdstring, stringname, classname
+import gdextcore/exceptions; export exceptions
 
 import std/tables; export Table, toTable, initTable
 

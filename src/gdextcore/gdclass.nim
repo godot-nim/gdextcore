@@ -26,13 +26,20 @@ when EnableDebugInterface:
 
 type
   ObjectControlFlag* = enum
-    OC_wasLocked
+    OC_godotManaged
 
   ObjectControl* = object
     owner*: ObjectPtr
     flags*: set[ObjectControlFlag]
     when EnableDebugInterface:
       name*: string
+
+proc `=destroy`*(x: ObjectControl) =
+  when EnableDebugInterface:
+    echo SYNC.DESTROY, x.name
+  if OC_godotManaged notin x.flags:
+    destroy x.owner
+
 
 type
   GodotClass* = ref object of RootObj
@@ -59,13 +66,12 @@ template CLASS_getObjectPtrPtr*(class: GodotClass): ptr ObjectPtr =
   if class.isNil or class.control.owner.isNil: nil
   else: addr class.control.owner
 
-template CLASS_lockDestroy(class: GodotClass) =
-  class.control.flags.incl OC_wasLocked
+template CLASS_passOwnershipToGodot*(class: GodotClass) =
+  class.control.flags.incl OC_godotManaged
   GC_ref class
 template CLASS_unlockDestroy(class: GodotClass) =
-  if OC_wasLocked in class.control.flags:
+  if OC_godotManaged in class.control.flags:
     GC_unref class
-    class.control.flags.excl OC_wasLocked
 
 method init*(self: GodotClass) {.base.}
 
@@ -89,11 +95,11 @@ template CLASS_sync_instantiate*[T: SomeClass](class: T) =
 template CLASS_sync_create_bind*[T: SomeClass](class: T) =
   when EnableDebugInterface:
     echo SYNC.CREATE_BIND, $typeof T
-  CLASS_lockDestroy class
+  CLASS_passOwnershipToGodot class
 template CLASS_sync_create_call*[T: SomeClass](class: T) =
   when EnableDebugInterface:
     echo SYNC.CREATE_CALL, $typeof T
-  CLASS_lockDestroy class
+  CLASS_passOwnershipToGodot class
 
 template CLASS_sync_free_bind*[T: SomeClass](class: T) =
   when EnableDebugInterface:

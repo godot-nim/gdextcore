@@ -22,7 +22,7 @@ proc `$`*(s: StringName): string = $gdstring s
 
 when TargetVersion >= (4, 2):
   proc stringName*(str: string): StringName =
-    interfaceStringNameNewWithLatin1Chars(addr result, cstring str, true)
+    interfaceStringNameNewWithLatin1Chars(addr result, cstring str, false)
 else:
   proc stringName(s: String): StringName =
     let args = [cast[pointer](addr s)]

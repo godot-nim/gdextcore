@@ -35,7 +35,7 @@ type
   char32_t* = uint32_t
   char16_t* = uint16_t
 
-when TargetVersion >= (4, 1):
+when TargetVersion in (4, 1)..(4, 2):
   type
     VariantType* {.size: sizeof(cuint).} = enum
       VariantType_Nil,
@@ -61,6 +61,36 @@ when TargetVersion >= (4, 1):
       VariantType_PackedVector2Array,
       VariantType_PackedVector3Array,
       VariantType_PackedColorArray,
+elif TargetVersion >= (4, 3):
+  type
+    VariantType* {.size: sizeof(cuint).} = enum
+      VariantType_Nil,
+      VariantType_Bool, VariantType_Int,
+      VariantType_Float, VariantType_String,
+      VariantType_Vector2, VariantType_Vector2i,
+      VariantType_Rect2, VariantType_Rect2i,
+      VariantType_Vector3, VariantType_Vector3i,
+      VariantType_Transform2d, VariantType_Vector4,
+      VariantType_Vector4i, VariantType_Plane,
+      VariantType_Quaternion, VariantType_AABB,
+      VariantType_Basis, VariantType_Transform3d, VariantType_Projection,
+      VariantType_Color, VariantType_StringName,
+      VariantType_NodePath, VariantType_RID,
+      VariantType_Object, VariantType_Callable,
+      VariantType_Signal, VariantType_Dictionary, VariantType_Array,
+      VariantType_PackedByteArray,
+      VariantType_PackedInt32Array,
+      VariantType_PackedInt64Array,
+      VariantType_PackedFloat32Array,
+      VariantType_PackedFloat64Array,
+      VariantType_PackedStringArray,
+      VariantType_PackedVector2Array,
+      VariantType_PackedVector3Array,
+      VariantType_PackedColorArray,
+      VariantType_PackedVector4Array,
+
+when TargetVersion >= (4, 1):
+  type
     VariantOperator* {.size: sizeof(cuint).} = enum
       VariantOP_Equal, VariantOP_NotEqual,
       VariantOP_Less, VariantOP_LessEqual,
@@ -153,7 +183,7 @@ when TargetVersion >= (4, 1):
       default_argument_count*: uint32_t
       default_arguments*: ptr VariantPtr
     ClassGetPropertyList* = proc (p_instance: ClassInstancePtr; r_count: ptr uint32_t): ptr PropertyInfo {.gdcall.}
-    ClassFreePropertyList* = proc (p_instance: ClassInstancePtr; p_list: ptr PropertyInfo) {.gdcall.}
+    ClassFreePropertyList* {.deprecated_atLeast: (4, 3).} = proc (p_instance: ClassInstancePtr; p_list: ptr PropertyInfo) {.gdcall.}
     ClassPropertyCanRevert* = proc (p_instance: ClassInstancePtr; p_name: ConstStringNamePtr): Bool {.gdcall.}
     ClassPropertyGetRevert* = proc (p_instance: ClassInstancePtr; p_name: ConstStringNamePtr; r_ret: VariantPtr): Bool {.gdcall.}
 
@@ -165,6 +195,24 @@ when TargetVersion >= (4, 1):
     ClassCreateInstance* = proc (p_class_userdata: pointer): ObjectPtr {.gdcall.}
     ClassFreeInstance* = proc (p_class_userdata: pointer; p_instance: ClassInstancePtr) {.gdcall.}
     ClassGetVirtual* = proc (p_class_userdata: pointer; p_name: ConstStringNamePtr): ClassCallVirtual {.gdcall.}
+    ClassCreationInfo* {.bycopy, deprecated_atLeast: (4, 2).} = object
+      is_virtual*: Bool
+      is_abstract*: Bool
+      set_func*: ClassSet
+      get_func*: ClassGet
+      get_property_list_func*: ClassGetPropertyList
+      free_property_list_func*: ClassFreePropertyList
+      property_can_revert_func*: ClassPropertyCanRevert
+      property_get_revert_func*: ClassPropertyGetRevert
+      notification_func*: ClassNotification
+      to_string_func*: ClassToString
+      reference_func*: ClassReference
+      unreference_func*: ClassUnreference
+      create_instance_func*: ClassCreateInstance
+      free_instance_func*: ClassFreeInstance
+      get_virtual_func*: ClassGetVirtual
+      get_rid_func*: ClassGetRID
+      class_userdata*: pointer
 
 when TargetVersion >= (4, 2):
   type
@@ -175,7 +223,7 @@ when TargetVersion >= (4, 2):
     ClassGetVirtualCallData* = proc (p_class_userdata: pointer; p_name: ConstStringNamePtr): pointer {.gdcall.}
     ClassCallVirtualWithData* = proc (p_instance: ClassInstancePtr; p_name: ConstStringNamePtr; p_virtual_call_userdata: pointer; p_args: ptr UncheckedArray[ConstTypePtr]; r_ret: TypePtr) {.gdcall.}
 
-    ClassCreationInfo2* {.bycopy.} = object
+    ClassCreationInfo2* {.deprecated_atLeast: (4, 3), bycopy.} = object
       is_virtual*: Bool
       is_abstract*: Bool
       is_exposed*: Bool
@@ -198,28 +246,36 @@ when TargetVersion >= (4, 2):
       call_virtual_with_data_func*: ClassCallVirtualWithData
       get_rid_func*: ClassGetRID
       class_userdata*: pointer
-
-when TargetVersion >= (4, 1):
+when TargetVersion >= (4, 3):
   type
-    ClassCreationInfo* {.bycopy, deprecated_atLeast: (4, 2).} = object
+    ClassFreePropertyList2* = proc(p_instance: ClassInstancePtr; p_list: ptr UncheckedArray[PropertyInfo]; p_count: uint32_t)
+    ClassCreationInfo3* {.bycopy.} = object
       is_virtual*: Bool
       is_abstract*: Bool
+      is_exposed*: Bool
+      is_runtime*: Bool
       set_func*: ClassSet
       get_func*: ClassGet
       get_property_list_func*: ClassGetPropertyList
-      free_property_list_func*: ClassFreePropertyList
+      free_property_list_func*: ClassFreePropertyList2
       property_can_revert_func*: ClassPropertyCanRevert
       property_get_revert_func*: ClassPropertyGetRevert
-      notification_func*: ClassNotification
+      validate_property_func*: ClassValidateProperty
+      notification_func*: ClassNotification2
       to_string_func*: ClassToString
       reference_func*: ClassReference
       unreference_func*: ClassUnreference
       create_instance_func*: ClassCreateInstance
       free_instance_func*: ClassFreeInstance
+      recreate_instance_func*: ClassRecreateInstance
       get_virtual_func*: ClassGetVirtual
+      get_virtual_call_data_func*: ClassGetVirtualCallData
+      call_virtual_with_data_func*: ClassCallVirtualWithData
       get_rid_func*: ClassGetRID
       class_userdata*: pointer
 
+when TargetVersion >= (4, 1):
+  type
     ClassLibraryPtr* = pointer
     ClassMethodFlags* {.size: sizeof(cuint).} = enum
       MethodFlag_Normal = 0
@@ -250,15 +306,12 @@ when TargetVersion >= (4, 1):
       call_func*: ClassMethodCall
       ptrcall_func*: ClassMethodPtrCall
       method_flags*: uint32_t
-
       has_return_value*: Bool
       return_value_info*: ptr PropertyInfo
       return_value_metadata*: ClassMethodArgumentMetadata
-
       argument_count*: uint32_t
       arguments_info*: ptr PropertyInfo
       arguments_metadata*: ptr ClassMethodArgumentMetadata
-
       default_argument_count*: uint32_t
       default_arguments*: ptr VariantPtr
 
@@ -272,7 +325,7 @@ when TargetVersion >= (4, 2):
     CallableCustomLessThan* = proc (callable_userdata_a: pointer; callable_userdata_b: pointer): Bool {.gdcall.}
     CallableCustomToString* = proc (callable_userdata: pointer; r_is_valid: ptr Bool; r_out: StringPtr) {.gdcall.}
 
-    CallableCustomInfo* {.bycopy.} = object
+    CallableCustomInfo* {.deprecated_atLeast: (4, 3), bycopy.} = object
       callable_userdata*: pointer
       token*: pointer
       object_id*: GDObjectInstanceID
@@ -284,13 +337,38 @@ when TargetVersion >= (4, 2):
       less_than_func*: CallableCustomLessThan
       to_string_func*: CallableCustomToString
 
+when TargetVersion >= (4, 3):
+  type
+    ClassVirtualMethodInfo* {.bycopy.} = object
+      name*: StringNamePtr
+      method_flags*: uint32_t
+      return_value*: PropertyInfo
+      return_value_metadata*: ClassMethodArgumentMetadata
+      argument_count*: uint32_t
+      arguments*: ptr PropertyInfo
+      arguments_metadata*: ptr ClassMethodArgumentMetadata
+
+    CallableCustomGetArgumentCount* = proc (callable_userdata: pointer; r_is_valid: ptr Bool): Int
+    CallableCustomInfo2* {.bycopy.} = object
+      callable_userdata*: pointer
+      token*: pointer
+      object_id*: GDObjectInstanceID
+      call_func*: CallableCustomCall
+      is_valid_func*: CallableCustomIsValid
+      free_func*: CallableCustomFree
+      hash_func*: CallableCustomHash
+      equal_func*: CallableCustomEqual
+      less_than_func*: CallableCustomLessThan
+      to_string_func*: CallableCustomToString
+      get_argument_count_func*: CallableCustomGetArgumentCount
+
 when TargetVersion >= (4, 1):
   type
     ScriptInstanceDataPtr* = pointer
     ScriptInstanceSet* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr; p_value: ConstVariantPtr): Bool {.gdcall.}
     ScriptInstanceGet* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr; r_ret: VariantPtr): Bool {.gdcall.}
     ScriptInstanceGetPropertyList* = proc (p_instance: ScriptInstanceDataPtr; r_count: ptr uint32_t): ptr PropertyInfo {.gdcall.}
-    ScriptInstanceFreePropertyList* = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr PropertyInfo) {.gdcall.}
+    ScriptInstanceFreePropertyList* {.deprecated_atLeast: (4, 3).} = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr PropertyInfo) {.gdcall.}
     ScriptInstanceGetPropertyType* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr; r_is_valid: ptr Bool): VariantType {.gdcall.}
     ScriptInstancePropertyCanRevert* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr): Bool {.gdcall.}
     ScriptInstancePropertyGetRevert* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr; r_ret: VariantPtr): Bool {.gdcall.}
@@ -298,7 +376,7 @@ when TargetVersion >= (4, 1):
     ScriptInstancePropertyStateAdd* = proc (p_name: ConstStringNamePtr; p_value: ConstVariantPtr; p_userdata: pointer) {.gdcall.}
     ScriptInstanceGetPropertyState* = proc (p_instance: ScriptInstanceDataPtr; p_add_func: ScriptInstancePropertyStateAdd; p_userdata: pointer) {.gdcall.}
     ScriptInstanceGetMethodList* = proc (p_instance: ScriptInstanceDataPtr; r_count: ptr uint32_t): ptr MethodInfo {.gdcall.}
-    ScriptInstanceFreeMethodList* = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr MethodInfo) {.gdcall.}
+    ScriptInstanceFreeMethodList* {.deprecated_atLeast: (4, 3).} = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr MethodInfo) {.gdcall.}
     ScriptInstanceHasMethod* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr): Bool {.gdcall.}
     ScriptInstanceCall* = proc (p_self: ScriptInstanceDataPtr; p_method: ConstStringNamePtr; p_args: ptr ConstVariantPtr; p_argument_count: Int; r_return: VariantPtr; r_error: ptr CallError) {.gdcall.}
     ScriptInstanceNotification* {.deprecated_atLeast: (4, 2).} = proc (p_instance: ScriptInstanceDataPtr; p_what: int32_t) {.gdcall.}
@@ -343,7 +421,7 @@ when TargetVersion >= (4, 2):
     ScriptInstanceValidateProperty* = proc (p_instance: ScriptInstanceDataPtr; p_property: ptr PropertyInfo): Bool {.gdcall.}
     ScriptInstanceNotification2* = proc (p_instance: ScriptInstanceDataPtr; p_what: int32_t; p_reversed: Bool) {.gdcall.}
 
-    ScriptInstanceInfo2* {.bycopy.} = object
+    ScriptInstanceInfo2* {.deprecated_atLeast: (4, 3), bycopy.} = object
       set_func*: ScriptInstanceSet
       get_func*: ScriptInstanceGet
       get_property_list_func*: ScriptInstanceGetPropertyList
@@ -358,6 +436,40 @@ when TargetVersion >= (4, 2):
       get_property_type_func*: ScriptInstanceGetPropertyType
       validate_property_func*: ScriptInstanceValidateProperty
       has_method_func*: ScriptInstanceHasMethod
+      call_func*: ScriptInstanceCall
+      notification_func*: ScriptInstanceNotification2
+      to_string_func*: ScriptInstanceToString
+      refcount_incremented_func*: ScriptInstanceRefCountIncremented
+      refcount_decremented_func*: ScriptInstanceRefCountDecremented
+      get_script_func*: ScriptInstanceGetScript
+      is_placeholder_func*: ScriptInstanceIsPlaceholder
+      set_fallback_func*: ScriptInstanceSet
+      get_fallback_func*: ScriptInstanceGet
+      get_language_func*: ScriptInstanceGetLanguage
+      free_func*: ScriptInstanceFree
+
+when TargetVersion >= (4, 3):
+  type
+    ScriptInstanceFreePropertyList2* = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr UncheckedArray[PropertyInfo]; p_count: uint32_t)
+    ScriptInstanceFreeMethodList2* = proc (p_instance: ScriptInstanceDataPtr; p_list: ptr UncheckedArray[MethodInfo]; p_count: uint32_t)
+    ScriptInstanceGetMethodArgumentCount* = proc (p_instance: ScriptInstanceDataPtr; p_name: ConstStringNamePtr; r_is_valid: ptr Bool): Int
+
+    ScriptInstanceInfo3* {.bycopy.} = object
+      set_func*: ScriptInstanceSet
+      get_func*: ScriptInstanceGet
+      get_property_list_func*: ScriptInstanceGetPropertyList
+      free_property_list_func*: ScriptInstanceFreePropertyList2
+      get_class_category_func*: ScriptInstanceGetClassCategory
+      property_can_revert_func*: ScriptInstancePropertyCanRevert
+      property_get_revert_func*: ScriptInstancePropertyGetRevert
+      get_owner_func*: ScriptInstanceGetOwner
+      get_property_state_func*: ScriptInstanceGetPropertyState
+      get_method_list_func*: ScriptInstanceGetMethodList
+      free_method_list_func*: ScriptInstanceFreeMethodList2
+      get_property_type_func*: ScriptInstanceGetPropertyType
+      validate_property_func*: ScriptInstanceValidateProperty
+      has_method_func*: ScriptInstanceHasMethod
+      get_method_argument_count_func*: ScriptInstanceGetMethodArgumentCount
       call_func*: ScriptInstanceCall
       notification_func*: ScriptInstanceNotification2
       to_string_func*: ScriptInstanceToString
@@ -458,8 +570,8 @@ when TargetVersion >= (4, 1):
     InterfaceStringNewWithUtf32Chars* = proc (r_dest: UninitializedStringPtr; p_contents: ptr char32_t) {.gdcall, raises: [].}
     InterfaceStringNewWithWideChars* = proc (r_dest: UninitializedStringPtr; p_contents: ptr wchar_t) {.gdcall, raises: [].}
     InterfaceStringNewWithLatin1CharsAndLen* = proc (r_dest: UninitializedStringPtr; p_contents: cstring; p_size: Int) {.gdcall, raises: [].}
-    InterfaceStringNewWithUtf8CharsAndLen* = proc (r_dest: UninitializedStringPtr; p_contents: cstring; p_char_count: Int) {.gdcall, raises: [].}
-    InterfaceStringNewWithUtf16CharsAndLen* = proc (r_dest: UninitializedStringPtr; p_contents: ptr char16_t; p_char_count: Int) {.gdcall, raises: [].}
+    InterfaceStringNewWithUtf8CharsAndLen* {.deprecated_atLeast: (4, 3).} = proc (r_dest: UninitializedStringPtr; p_contents: cstring; p_char_count: Int) {.gdcall, raises: [].}
+    InterfaceStringNewWithUtf16CharsAndLen* {.deprecated_atLeast: (4, 3).} = proc (r_dest: UninitializedStringPtr; p_contents: ptr char16_t; p_char_count: Int) {.gdcall, raises: [].}
     InterfaceStringNewWithUtf32CharsAndLen* = proc (r_dest: UninitializedStringPtr; p_contents: ptr char32_t; p_char_count: Int) {.gdcall, raises: [].}
     InterfaceStringNewWithWideCharsAndLen* = proc (r_dest: UninitializedStringPtr; p_contents: ptr wchar_t; p_size: Int) {.gdcall, raises: [].}
     InterfaceStringToLatin1Chars* = proc (p_self: ConstStringPtr; r_text: cstring; p_max_write_length: Int): Int {.gdcall, raises: [].}
@@ -539,11 +651,28 @@ when TargetVersion >= (4, 2):
     InterfaceStringNameNewWithUtf8Chars* = proc (r_dest: UninitializedStringNamePtr; p_contents: cstring) {.gdcall, raises: [].}
     InterfaceStringNameNewWithUtf8CharsAndLen* = proc (r_dest: UninitializedStringNamePtr; p_contents: cstring; p_size: Int) {.gdcall, raises: [].}
     InterfaceObjectFreeInstanceBinding* = proc (p_o: ObjectPtr; p_token: pointer) {.gdcall, raises: [].}
-    InterfaceScriptInstanceCreate2* = proc (p_info: ptr ScriptInstanceInfo2; p_instance_data: ScriptInstanceDataPtr): ScriptInstancePtr {.gdcall, raises: [].}
+    InterfaceScriptInstanceCreate2* {.deprecated_atLeast: (4, 3).} = proc (p_info: ptr ScriptInstanceInfo2; p_instance_data: ScriptInstanceDataPtr): ScriptInstancePtr {.gdcall, raises: [].}
     InterfacePlaceHolderScriptInstanceCreate* = proc (p_language: ObjectPtr; p_script: ObjectPtr; p_owner: ObjectPtr): ScriptInstancePtr {.gdcall, raises: [].}
     InterfacePlaceHolderScriptInstanceUpdate* = proc (p_placeholder: ScriptInstancePtr; p_properties: ConstTypePtr; p_values: ConstTypePtr) {.gdcall, raises: [].}
     InterfaceObjectGetScriptInstance* = proc (p_object: ConstObjectPtr; p_language: ObjectPtr): ScriptInstanceDataPtr {.gdcall, raises: [].}
-    InterfaceCallableCustomCreate* = proc (r_callable: UninitializedTypePtr; p_callable_custom_info: ptr CallableCustomInfo) {.gdcall, raises: [].}
+    InterfaceCallableCustomCreate* {.deprecated_atLeast: (4, 3).} = proc (r_callable: UninitializedTypePtr; p_callable_custom_info: ptr CallableCustomInfo) {.gdcall, raises: [].}
     InterfaceCallableCustomGetUserData* = proc (p_callable: ConstTypePtr; p_token: pointer): pointer {.gdcall, raises: [].}
-    InterfaceClassdbRegisterExtensionClass2* = proc (p_library: ClassLibraryPtr; p_class_name: ConstStringNamePtr; p_parent_class_name: ConstStringNamePtr; p_extension_funcs: ptr ClassCreationInfo2) {.gdcall, raises: [].}
+    InterfaceClassdbRegisterExtensionClass2* {.deprecated_atLeast: (4, 3).} = proc (p_library: ClassLibraryPtr; p_class_name: ConstStringNamePtr; p_parent_class_name: ConstStringNamePtr; p_extension_funcs: ptr ClassCreationInfo2) {.gdcall, raises: [].}
     InterfaceClassdbRegisterExtensionClassPropertyIndexed* = proc (p_library: ClassLibraryPtr; p_class_name: ConstStringNamePtr; p_info: ptr PropertyInfo; p_setter: ConstStringNamePtr; p_getter: ConstStringNamePtr; p_index: Int) {.gdcall, raises: [].}
+
+when TargetVersion >= (4, 3):
+  type
+    InterfaceStringNewWithUtf8CharsAndLen2* = proc (r_dest: UninitializedStringPtr; p_contents: cstring; p_size: Int): Int {.gdcall, raises: [].}
+    InterfaceStringNewWithUtf16CharsAndLen2* = proc (r_dest: UninitializedStringPtr; p_contents: ptr char16_t; p_char_count: Int; p_default_little_endian: Bool): Int {.gdcall, raises: [].}
+    InterfaceImagePtrw* = proc (p_instance: ObjectPtr): ptr uint8_t {.gdcall, raises: [].}
+    InterfaceImagePtr* = proc (p_instance: ObjectPtr): ptr uint8_t {.gdcall, raises: [].}
+    InterfacePackedVector4ArrayOperatorIndex* = proc (p_self: TypePtr; p_index: Int): TypePtr {.gdcall, raises: [].}
+    InterfacePackedVector4ArrayOperatorIndexConst* = proc (p_self: ConstTypePtr; p_index: Int): TypePtr {.gdcall, raises: [].}
+    InterfaceObjectHasScriptMethod* = proc (p_object: ConstObjectPtr; p_method: ConstStringNamePtr): Bool {.gdcall, raises: [].}
+    InterfaceObjectCallScriptMethod* = proc (p_object: ObjectPtr; p_method: ConstStringNamePtr; p_args: ptr ConstVariantPtr; p_argument_count: Int; r_return: UninitializedVariantPtr; r_error: ptr CallError) {.gdcall, raises: [].}
+    InterfaceScriptInstanceCreate3* = proc (p_info: ptr ScriptInstanceInfo3; p_instance_data: ScriptInstanceDataPtr): ScriptInstancePtr {.gdcall, raises: [].}
+    InterfaceCallableCustomCreate2* = proc (r_callable: UninitializedTypePtr; p_callable_custom_info: ptr CallableCustomInfo2) {.gdcall, raises: [].}
+    InterfaceClassdbRegisterExtensionClass3* = proc (p_library: ClassLibraryPtr; p_class_name: ConstStringNamePtr; p_parent_class_name: ConstStringNamePtr; p_extension_funcs: ptr ClassCreationInfo3) {.gdcall, raises: [].}
+    InterfaceClassdbRegisterExtensionClassVirtualMethod* = proc (p_library: ClassLibraryPtr; p_class_name: ConstStringNamePtr; p_method_info: ptr ClassVirtualMethodInfo) {.gdcall, raises: [].}
+    InterfaceEditorHelpLoadXmlFromUtf8Chars* = proc (p_data: cstring) {.gdcall, raises: [].}
+    InterfaceEditorHelpLoadXmlFromUtf8CharsAndLen* = proc (p_data: cstring; p_size: Int) {.gdcall, raises: [].}

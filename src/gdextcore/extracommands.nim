@@ -20,10 +20,15 @@ proc `$`*(s: String): string =
   discard interfaceStringToLatin1Chars(addr s, cstring result, length)
 proc `$`*(s: StringName): string = $gdstring s
 
-proc stringName*(str: string): StringName =
-  let s = gdstring str
-  let args = [cast[pointer](addr s)]
-  newStringNameFromString(addr result, addr args[0])
+when TargetVersion >= (4, 2):
+  proc stringName*(str: string): StringName =
+    interfaceStringNameNewWithLatin1Chars(addr result, cstring str, true)
+else:
+  proc stringName(s: String): StringName =
+    let args = [cast[pointer](addr s)]
+    newStringNameFromString(addr result, addr args[0])
+  proc stringName*(str: string): StringName =
+    stringName gdstring str
 
 proc className*(o: ObjectPtr): string =
   var sn: StringName

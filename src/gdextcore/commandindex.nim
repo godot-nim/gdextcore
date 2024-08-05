@@ -166,6 +166,23 @@ when TargetVersion >= (4, 2):
     interfaceClassdbRegisterExtensionClass2*: InterfaceClassdbRegisterExtensionClass2
     interfaceClassdbRegisterExtensionClassPropertyIndexed*: InterfaceClassdbRegisterExtensionClassPropertyIndexed
 
+when TargetVersion >= (4, 3):
+  var
+    interfaceStringNewWithUtf8CharsAndLen2*: InterfaceStringNewWithUtf8CharsAndLen2
+    interfaceStringNewWithUtf16CharsAndLen2*: InterfaceStringNewWithUtf16CharsAndLen2
+    interfaceImagePtrw*: InterfaceImagePtrw
+    interfaceImagePtr*: InterfaceImagePtr
+    interfacePackedVector4ArrayOperatorIndex*: InterfacePackedVector4ArrayOperatorIndex
+    interfacePackedVector4ArrayOperatorIndexConst*: InterfacePackedVector4ArrayOperatorIndexConst
+    interfaceObjectHasScriptMethod*: InterfaceObjectHasScriptMethod
+    interfaceObjectCallScriptMethod*: InterfaceObjectCallScriptMethod
+    interfaceScriptInstanceCreate3*: InterfaceScriptInstanceCreate3
+    interfaceCallableCustomCreate2*: InterfaceCallableCustomCreate2
+    interfaceClassdbRegisterExtensionClass3*: InterfaceClassdbRegisterExtensionClass3
+    interfaceClassdbRegisterExtensionClassVirtualMethod*: InterfaceClassdbRegisterExtensionClassVirtualMethod
+    interfaceEditorHelpLoadXmlFromUtf8Chars*: InterfaceEditorHelpLoadXmlFromUtf8Chars
+    interfaceEditorHelpLoadXmlFromUtf8CharsAndLen*: InterfaceEditorHelpLoadXmlFromUtf8CharsAndLen
+
 proc load* =
   let getProcAddress = environment.getProcAddress
   interfaceGetGodotVersion = cast[InterfaceGetGodotVersion](getProcAddress(cstring "get_godot_version"))
@@ -319,5 +336,21 @@ proc load* =
     interfaceCallableCustomGetUserData = cast[InterfaceCallableCustomGetUserData](getProcAddress(cstring "callable_custom_get_userdata"))
     interfaceClassdbRegisterExtensionClass2 = cast[InterfaceClassdbRegisterExtensionClass2](getProcAddress(cstring "classdb_register_extension_class2"))
     interfaceClassdbRegisterExtensionClassPropertyIndexed = cast[InterfaceClassdbRegisterExtensionClassPropertyIndexed](getProcAddress(cstring "classdb_register_extension_class_property_indexed"))
+
+  when TargetVersion >= (4, 3):
+    interfaceStringNewWithUtf8CharsAndLen2 = cast[InterfaceStringNewWithUtf8CharsAndLen2](getProcAddress(cstring "string_new_with_utf8_chars_and_len2"))
+    interfaceStringNewWithUtf16CharsAndLen2 = cast[InterfaceStringNewWithUtf16CharsAndLen2](getProcAddress(cstring "string_new_with_utf16_chars_and_len2"))
+    interfaceImagePtrw = cast[InterfaceImagePtrw](getProcAddress(cstring "image_ptrw"))
+    interfaceImagePtr = cast[InterfaceImagePtr](getProcAddress(cstring "image_ptr"))
+    interfacePackedVector4ArrayOperatorIndex = cast[InterfacePackedVector4ArrayOperatorIndex](getProcAddress(cstring "packed_vector4_array_operator_index"))
+    interfacePackedVector4ArrayOperatorIndexConst = cast[InterfacePackedVector4ArrayOperatorIndexConst](getProcAddress(cstring "packed_vector4_array_operator_index_const"))
+    interfaceObjectHasScriptMethod = cast[InterfaceObjectHasScriptMethod](getProcAddress(cstring "object_has_script_method"))
+    interfaceObjectCallScriptMethod = cast[InterfaceObjectCallScriptMethod](getProcAddress(cstring "object_call_script_method"))
+    interfaceScriptInstanceCreate3 = cast[InterfaceScriptInstanceCreate3](getProcAddress(cstring "script_instance_create3"))
+    interfaceCallableCustomCreate2 = cast[InterfaceCallableCustomCreate2](getProcAddress(cstring "callable_custom_create2"))
+    interfaceClassdbRegisterExtensionClass3 = cast[InterfaceClassdbRegisterExtensionClass3](getProcAddress(cstring "classdb_register_extension_class3"))
+    interfaceClassdbRegisterExtensionClassVirtualMethod = cast[InterfaceClassdbRegisterExtensionClassVirtualMethod](getProcAddress(cstring "classdb_register_extension_class_virtual_method"))
+    interfaceEditorHelpLoadXmlFromUtf8Chars = cast[InterfaceEditorHelpLoadXmlFromUtf8Chars](getProcAddress(cstring "editor_help_load_xml_from_utf8_chars"))
+    interfaceEditorHelpLoadXmlFromUtf8CharsAndLen = cast[InterfaceEditorHelpLoadXmlFromUtf8CharsAndLen](getProcAddress(cstring "editor_help_load_xml_from_utf8_chars_and_len"))
 
   interfaceGetGodotVersion(addr environment.version)

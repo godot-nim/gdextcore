@@ -109,8 +109,14 @@ type
     proxy: pointer
     data_unsafe*: ptr UncheckedArray[Color]
 
+when TargetVersion >= (4, 3):
+  type
+    PackedVector4Array* {.bycopy.} = object
+      proxy: pointer
+      data_unsafe*: ptr UncheckedArray[Vector4]
 
-type SomePackedArray* =
+
+type `SomePackedArray < 4.3` =
   PackedByteArray    |
   PackedInt32Array   |
   PackedInt64Array   |
@@ -120,6 +126,12 @@ type SomePackedArray* =
   PackedVector2Array |
   PackedVector3Array |
   PackedColorArray
+
+when TargetVersion < (4, 3):
+  type SomePackedArray* = `SomePackedArray < 4.3`
+else:
+  type SomePackedArray* = `SomePackedArray < 4.3` | PackedVector4Array
+
 type SomeFloatVector* =
   Vector2 |
   Vector3 |

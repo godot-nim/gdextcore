@@ -58,6 +58,9 @@ template variantType*(_: typedesc[PackedVector2Array]): VariantType = VariantTyp
 template variantType*(_: typedesc[PackedVector3Array]): VariantType = VariantType_PackedVector3Array
 template variantType*(_: typedesc[PackedColorArray]): VariantType = VariantType_PackedColorArray
 
+when TargetVersion >= (4, 3):
+  template variantType*(_: typedesc[PackedVector4Array]): VariantType = VariantType_PackedVector4Array
+
 # Object
 
 template variantType*(Type: typedesc[ObjectPtr]): Variant_Type = VariantType_Object

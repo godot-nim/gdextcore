@@ -297,6 +297,27 @@ proc `=destroy`(val: PackedColorArray) =
   try:
     hook_destroy(val)
   except: discard
+
+when TargetVersion >= (4, 3):
+  var hook_copy_PackedVector4Array: PtrConstructor
+  proc hook_copy(copy_from: PackedVector4Array): PackedVector4Array =
+    let argPtr = cast[pointer](addr copy_from)
+    hook_copy_PackedVector4Array(addr result, addr argPtr)
+  proc `=copy`(dst: var PackedVector4Array; src: PackedVector4Array) =
+    if dst == src: return
+    `=destroy` dst
+    wasMoved dst
+    dst = hook_copy(src)
+  proc `=dup`(src: PackedVector4Array): PackedVector4Array =
+    hook_copy(src)
+  var hook_destroy_PackedVector4Array: PtrDestructor
+  proc hook_destroy(value: PackedVector4Array) =
+    hook_destroy_PackedVector4Array(addr value)
+  proc `=destroy`(val: PackedVector4Array) =
+    try:
+      hook_destroy(val)
+    except: discard
+
 proc load* =
   hook_copy_String = interface_Variant_getPtrConstructor(VariantType_String, 1)
   hook_destroy_String = interface_Variant_getPtrDestructor(VariantType_String)
@@ -331,3 +352,7 @@ proc load* =
   hook_destroy_PackedVector3Array = interface_Variant_getPtrDestructor(VariantType_PackedVector3Array)
   hook_copy_PackedColorArray = interface_Variant_getPtrConstructor(VariantType_PackedColorArray, 1)
   hook_destroy_PackedColorArray = interface_Variant_getPtrDestructor(VariantType_PackedColorArray)
+
+  when TargetVersion >= (4, 3):
+    hook_copy_PackedVector3Array = interface_Variant_getPtrConstructor(VariantType_PackedVector3Array, 1)
+    hook_destroy_PackedVector3Array = interface_Variant_getPtrDestructor(VariantType_PackedVector3Array)

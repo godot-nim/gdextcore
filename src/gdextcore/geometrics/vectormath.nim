@@ -31,7 +31,6 @@ template Back   *[T: SomeNumber](_:typedesc[NVector[3,T]]): NVector[3,T] = NVect
 # ---------
 
 # comp
-func `==`*[N: static int; T: SomeNumber](left,right: Vector[N,T]): bool = all (left, right): a == b
 func `<` *[N: static int; T: SomeNumber](left,right: Vector[N,T]): bool = all (left, right): a <  b
 func `<=`*[N: static int; T: SomeNumber](left,right: Vector[N,T]): bool = all (left, right): a <= b
 
